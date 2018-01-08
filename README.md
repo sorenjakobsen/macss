@@ -21,7 +21,7 @@ The tool is using a client/server architecture, suitable for 'live coding' music
 * Compile the example and load the composition into the server by pressing 'alt+m'.
 * Switch to the window running macss.csd and use the keyboard (and TouchOSC) to interact with the music.
 
-# Tips
+## Tips
 
 * To avoid glitchy sound on Windows one can start the server within the command prompt (cmd.exe) with the command "start /HIGH csound -m 0 -d D:\repos\macss\macss.csd" (which could be put inside a clickable .bat file).
 * The server uses the impulse response audio file "ir.wav" to provide a small amount of convolution reverb to all sounds - the file may be replaced with other impulse reponse files.
