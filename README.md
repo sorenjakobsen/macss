@@ -6,7 +6,9 @@ Macs/s is a tool to support a specific method of composing and performing electr
 
 The tool is using a client/server architecture, suitable for 'live coding' music. The server is implemented in the Csound file macss.csd and the client is implemented as a package for Atom.
 
-## Prerequisites
+## Requirements
+
+To use Macs/s the following software must be installed.
 
 * [Csound](http://csound.com/)
 * [Atom](https://atom.io/)
@@ -18,7 +20,7 @@ The tool is using a client/server architecture, suitable for 'live coding' music
 * Start the server by running macss.csd with Csound.
 * Open one of the example (.macss) files with Atom.
 * Load the samples into the server by pressing 'alt+l' (the Atom window showing the example file must be active).
-* Compile the example and load the composition into the server by pressing 'alt+m'.
+* Compile the example and load the composition into the server by pressing 'alt+m' (may be repeated after changing the composition).
 * Switch to the window running macss.csd and use the keyboard (and TouchOSC) to interact with the music.
 
 ## Tips
@@ -26,9 +28,13 @@ The tool is using a client/server architecture, suitable for 'live coding' music
 * To avoid glitchy sound on Windows one can start the server within the command prompt (cmd.exe) with the command "start /HIGH csound -m 0 -d D:\repos\macss\macss.csd" (which could be put inside a clickable .bat file).
 * The server uses the impulse response audio file "ir.wav" to provide a small amount of convolution reverb to all sounds - the file may be replaced with other impulse reponse files.
 
+## More information
+
+The file article.pdf contains explanations about the design of Macs/s.
+
 ## Author
 
-Søren Jakobsen.
+Søren Jakobsen
 
 ## Acknowledgments
 
