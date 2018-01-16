@@ -1,6 +1,6 @@
 ﻿<CsoundSynthesizer>
 <CsOptions>
-  -o dac4 -b 512 -B 512
+-o dac4 -b 512 -B 512  ;'dac4' may have to be replaced with 'dac1'/'dac2'/... (check console output when Csound starts)
 </CsOptions>
 <CsInstruments>
 
@@ -133,7 +133,7 @@ islide        modval     ip4, ip5, ip, 1
 endop
 
 instr 2
-is, is2          modval2       p4, p5, 0 ;is2 is ignored
+is, is2          modval2       p4, p5, 0
 ir, ir2          modval2       p4, p5, 1
 iv, iv2          modval2       p4, p5, 2
 io, io2          modval2       p4, p5, 3

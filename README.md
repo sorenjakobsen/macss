@@ -17,6 +17,7 @@ To use Macs/s the following software must be installed.
 
 ## Running the examples
 
+* Adapt line 3 of macss.csd for your audio interface setup.
 * Start the server by running macss.csd with Csound.
 * Open one of the example (.macss) files with Atom.
 * Load the samples into the server by pressing 'alt+l' (the Atom window showing the example file must be active).
@@ -25,7 +26,7 @@ To use Macs/s the following software must be installed.
 
 ## Tips
 
-* To avoid glitchy sound on Windows one can start the server within the command prompt (cmd.exe) with the command "start /HIGH csound -m 0 -d D:\repos\macss\macss.csd" (which could be put inside a clickable .bat file).
+* To avoid glitchy sound on Windows one can start the server within the command prompt (cmd.exe) with the command "start /HIGH csound -m 0 -d macss.csd" (which could be put inside a clickable .bat file).
 * The server uses the impulse response audio file "ir.wav" to provide a small amount of convolution reverb to all sounds - the file may be replaced with other impulse reponse files.
 
 ## More information
