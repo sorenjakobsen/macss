@@ -14,7 +14,7 @@ nchnls = 2
 gibufsize    =         512
 gidel        =         (ksmps < gibufsize ? gibufsize + ksmps : gibufsize)/sr
 
-gktimeout    init      3.5
+gitimeout    init      1.0
 
 gireverb     init      0.007
 
@@ -142,7 +142,8 @@ ic, ic2          modval2       p4, p5, 5
 il, il2          modval2       p4, p5, 6
 ih, ih2          modval2       p4, p5, 7
 iison            =             int(p4)
-io               =             i(gktimeout) * io
+io               =             i(gitimeout) * io
+
                  cigoto        iv < 0.1, paramchange
 ilen             tab_i         0, 20000 + (gispack * 100) + p4
                  cigoto        ilen == 0, finish
@@ -268,10 +269,10 @@ ivoices      tab_i         i(gkrhythm), 800
 itempo       tab_i         0, 800 + i(gkrhythm)
 gibeats      tab_i         1, 800 + i(gkrhythm)
 gispack      tab_i         2, 800 + i(gkrhythm)
-itimeout     =             60.0 / itempo
+gitimeout    =             60.0 / itempo
 ibeat        =             gibeat % gibeats
 gibeat       =             gibeat + 1
-             timout        0, itimeout, play
+             timout        0, gitimeout, play
              reinit        loop
              play:
 ij           =             0
@@ -282,7 +283,7 @@ idur         =             gibeats / idivs
 ik           =             0
              kloop:
              if            (((ik * idur) >= ibeat) && ((ik * idur) < (ibeat + 1))) then
-             event_i       "i", 2 + (100 + ij) * 0.001, (ik * idur - ibeat) * itimeout, -1, ij, ik
+             event_i       "i", 2 + (100 + ij) * 0.001, (ik * idur - ibeat) * gitimeout, -1, ij, ik
              endif
 ik           =             ik + 1
              cigoto        ik < idivs, kloop
