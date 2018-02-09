@@ -4,37 +4,28 @@
 </CsOptions>
 <CsInstruments>
 
-sr = 44100
-ksmps = 100
-nchnls = 2
-0dbfs = 1
+sr      = 44100
+ksmps   = 100
+nchnls  = 2
+0dbfs   = 1
 
 #define port # 8000 #
 
 gibufsize    =         512
 gidel        =         (ksmps < gibufsize ? gibufsize + ksmps : gibufsize)/sr
-
 gitimeout    init      1.0
-
-gireverb     init      0.007
-
+gireverb     init      0.008
 gireldur     init      0.03
-gistacc      init      0.08
-
 giri         init      0.00003 * ksmps
 givi         init      0.00015 * ksmps
 gipi         init      0.00003 * ksmps
 gici         init      0.00003 * ksmps
 gili         init      0.00003 * ksmps
 gihi         init      0.00003 * ksmps
-
 gibeat       init      0
 gibeats      init      0
-
-gkrhythm     init      16
-
-gkfade1       init      0.0
-gkfade2       init      0.0
+gkfade1      init      0.0
+gkfade2      init      0.0
 
 alwayson "looper"
 alwayson "oscreceiver"
@@ -189,7 +180,6 @@ instr looper
 ivari        tab_i         26, 500
 itable       =             2000 + ivari
 ivoices      =             ftlen(itable) - 2
-             cigoto        ivoices < 1, finish
 itempo       tab_i         0, itable
 gibeats      tab_i         1, itable
 gitimeout    =             60.0 / itempo
@@ -200,6 +190,7 @@ gibeat       =             gibeat + 1
              play:
 ij           =             0
              jloop:
+             if            (ivoices > 0) then
 idivs        tab_i         2 + ij, itable
 idur         =             gibeats / idivs
 ik           =             0
@@ -209,6 +200,10 @@ ik           =             0
              endif
 ik           =             ik + 1
              cigoto        ik < idivs, kloop
+
+             else
+             scoreline_i   "i -3.100 0 -1\ni -3.101 0 -1\ni -3.102 0 -1\ni -3.103 0 -1\ni -3.104 0 -1\ni -3.105 0 -1\ni -3.106 0 -1\ni -3.107 0 -1\n"
+             endif
 ij           =             ij + 1
              cigoto        ij < ivoices, jloop
              finish:
@@ -254,8 +249,8 @@ endin
 
 </CsInstruments>
 <CsScore>
-f 2000 0 -2 -2 100 1
-f 500 0 -27 -2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+f 2000 0 -2 -2 200 1
+f 500 0 -30 -2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0
 e 10000000
 </CsScore>
 </CsoundSynthesizer>
