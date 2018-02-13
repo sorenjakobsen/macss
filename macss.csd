@@ -24,8 +24,6 @@ gili         init      0.00003 * ksmps
 gihi         init      0.00003 * ksmps
 gibeat       init      0
 gibeats      init      0
-gkfade1      init      0.0
-gkfade2      init      0.0
 
 alwayson "looper"
 alwayson "oscreceiver"
@@ -46,11 +44,11 @@ connect "reverb", "outr", "master", "inr"
 opcode scaleval, i, iiii
 ip4, ivari, ip, istep     xin
 ix                        tab_i      ip4, 2020 + ivari
-ivari                     tab_i      ix, 500
+ivari                     tab_i      ix * 3, 500
 iy                        tab_i      ip * 2, (300 + ix) * 10 + ivari
 iz                        tab_i      ip * 2 + 1, (300 + ix) * 10 + ivari
                           if         (iy > 0) then
-ivari                     tab_i      iz, 500
+ivari                     tab_i      iz * 3, 500
 iv                        tab_i      istep - 1, (300 + iz) * 10 + ivari
                           else
 iv                        =          iz
@@ -61,28 +59,42 @@ endop
 opcode seqval, i, iiiii
 ip4, ip5, ivari, ip, iss     xin
 ix                           tab_i      ip4, 2010 + ivari
-ivari                        tab_i      ix, 500
+ivari                        tab_i      ix * 3, 500
 iy                           tab_i      ip * 4 + iss * 2, (300 + ix) * 10 + ivari
 iz                           tab_i      ip * 4 + iss * 2 + 1, (300 + ix) * 10 + ivari
                              if         (iy > 0) then
-ivari                        tab_i      iz, 500
+ivari                        tab_i      iz * 3, 500
 ilen                         =          ftlen((300 + iz) * 10 + ivari)
 istep                        tab_i      (ip5 % ilen), (300 + iz) * 10 + ivari
                              else
 istep                        =          iz
                              endif
-iv1                          scaleval   ip4, 0, ip, istep
-iv2                          scaleval   ip4, 1, ip, istep
-iv                           =          (1 - i(gkfade2)) * iv1 + i(gkfade2) * iv2
+ivari                        tab_i      6, 600
+imix                         tab_i      7 + ivari, 600
+iv1                          scaleval   ip4, ivari * 2, ip, istep
+                             if         (imix > 1) then
+iv2                          scaleval   ip4, ivari * 2 + 1, ip, istep
+                             else
+iv2                          =          iv1
+                             endif
+imix                         =          (imix - 1.0) / 8.0
+iv                           =          (1 - i(imix)) * iv1 + i(imix) * iv2
                              finish:
                              xout       iv
 endop
 
 opcode modval, i, iiii
 ip4, ip5, ip, iss  xin
-iv1                seqval     ip4, ip5, 0, ip, iss
-iv2                seqval     ip4, ip5, 1, ip, iss
-iv                 =          (1 - i(gkfade1)) * iv1 + i(gkfade1) * iv2
+ivari              tab_i      3, 600
+imix               tab_i      4 + ivari, 600
+iv1                seqval     ip4, ip5, ivari * 2, ip, iss
+                   if         (imix > 1) then
+iv2                seqval     ip4, ip5, ivari * 2 + 1, ip, iss
+                   else
+iv2                =          iv1
+                   endif
+imix               =          (imix - 1.0) / 8.0
+iv                 =          (1 - i(imix)) * iv1 + i(imix) * iv2
                    xout       iv
 endop
 
@@ -94,9 +106,9 @@ islide        modval     ip4, ip5, ip, 1
 endop
 
 instr 2
-is, is2          modval2       p4, p5, 2; 0
+iv, iv2          modval2       p4, p5, 0
 ir, ir2          modval2       p4, p5, 1
-iv, iv2          modval2       p4, p5, 0; 2
+is, is2          modval2       p4, p5, 2
 io, io2          modval2       p4, p5, 3
 ip, ip2          modval2       p4, p5, 4
 iison            =             int(p4)
@@ -153,31 +165,18 @@ endin
 
 instr oscreceiver
 ihandle                    OSCinit         $port
-Sscore                     init            ""
-kindex                     init            0
 Sparams                    init            ""
-kval                       init            0
                            nxtmsg:
 kparams                    OSClisten       ihandle, "/macss/params", "s", Sparams
-kctrl                      OSClisten       ihandle, "/macss/control", "if", kindex, kval
-                           if              (kparams == 0 && kctrl == 0) goto finish
-                           if              (kparams != 0) then
+                           if              (kparams == 0) goto finish
                            scoreline       Sparams, 1
-                           endif
-                           if              (kctrl != 0) then
-                           if (kindex == 1) then
-gkfade2                    =               kval
-                           else
-gkfade1                    =               kval
-                           endif
-                           endif
                            kgoto           nxtmsg
                            finish:
 endin
 
 instr looper
              loop:
-ivari        tab_i         26, 500
+ivari        tab_i         0, 600
 itable       =             2000 + ivari
 ivoices      =             ftlen(itable) - 2
 itempo       tab_i         0, itable
@@ -200,9 +199,9 @@ ik           =             0
              endif
 ik           =             ik + 1
              cigoto        ik < idivs, kloop
-
              else
-             scoreline_i   "i -3.100 0 -1\ni -3.101 0 -1\ni -3.102 0 -1\ni -3.103 0 -1\ni -3.104 0 -1\ni -3.105 0 -1\ni -3.106 0 -1\ni -3.107 0 -1\n"
+             scoreline_i   "i -3.100 0 -1\ni -3.101 0 -1\ni -3.102 0 -1\ni -3.103 0 -1\n"
+             scoreline_i   "i -3.104 0 -1\ni -3.105 0 -1\ni -3.106 0 -1\ni -3.107 0 -1\n"
              endif
 ij           =             ij + 1
              cigoto        ij < ivoices, jloop
@@ -243,14 +242,17 @@ asl            compress2      asl, asl, kthresh, kloknee, khiknee, kratio, katt,
 asr            compress2      asr, asr, kthresh, kloknee, khiknee, kratio, katt, krel, ilook
 asl            =              asl * 64  ;(64 * 0.015625 = 1.0)
 asr            =              asr * 64
-               outs asl, asr
+               outs           asl, asr
 endin
 
 
 </CsInstruments>
 <CsScore>
 f 2000 0 -2 -2 200 1
-f 500 0 -30 -2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0  0 0 0 0
+f 600 0 -1 -2 0
+i "setvstparam" 0 1 0 0.4
+i "setvstparam" 0 1 1 0.4
+i "setvstparam" 0 1 2 1
 e 10000000
 </CsScore>
 </CsoundSynthesizer>
