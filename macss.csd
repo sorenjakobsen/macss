@@ -227,10 +227,19 @@ endin
 instr looper
              loop:
 ivari        tab_i         0, 600
-itable       =             2000 + ivari
+imix         tab_i         1 + ivari, 600
+itable       =             2000 + ivari * 2
 ivoices      =             ftlen(itable) - 2
 itempo       tab_i         0, itable
-gibeats      tab_i         1, itable
+ibeats       tab_i         1, itable
+             if            (imix > 0) then
+itable2      =             2000 + ivari * 2 + 1
+itempo2      tab_i         0, itable2
+ibeats2      tab_i         1, itable2
+itempo       =             (1 - i(imix)) * itempo + i(imix) * itempo2
+ibeats       =             (1 - i(imix)) * ibeats + i(imix) * ibeats2
+             endif
+gibeats      =             ibeats
 gitimeout    =             60.0 / itempo
 ibeat        =             gibeat % gibeats
 gibeat       =             gibeat + 1
@@ -241,6 +250,10 @@ ij           =             0
              jloop:
              if            (ivoices > 0) then
 idivs        tab_i         2 + ij, itable
+             if            (imix > 0) then
+idivs2       tab_i         2 + ij, itable2
+idivs        =             (1 - i(imix)) * idivs + i(imix) * idivs2
+             endif
 idur         =             gibeats / idivs
 ik           =             0
              kloop:
@@ -298,7 +311,7 @@ endin
 </CsInstruments>
 <CsScore>
 f 2000 0 -2 -2 200 1
-f 600 0 -1 -2 0
+f 600 0 -2 -2 0 0
 e 10000000
 </CsScore>
 </CsoundSynthesizer>
