@@ -41,76 +41,126 @@ connect "clean", "outr", "master", "inr"
 connect "reverb", "outl", "master", "inl"
 connect "reverb", "outr", "master", "inr"
 
-opcode scaleval, i, iiii
-ip4, ivari, ip, istep     xin
-ix                        tab_i      ip4, 2020 + ivari
-ivari                     tab_i      ix * 3, 500
+
+opcode scaleval, i, iiiii
+ip4, ivari, ip, istep, ix xin
 iy                        tab_i      ip * 2, (300 + ix) * 10 + ivari
 iz                        tab_i      ip * 2 + 1, (300 + ix) * 10 + ivari
                           if         (iy > 0) then
 ivari                     tab_i      iz * 3, 500
-iv                        tab_i      istep - 1, (300 + iz) * 10 + ivari
+imix                      tab_i      iz * 3 + 1 + ivari, 500
+iv1                       tab_i      istep - 1, (300 + iz) * 10 + ivari * 2
+                          if         (imix > 0) then
+iv2                       tab_i      istep - 1, (300 + iz) * 10 + ivari * 2 + 1
                           else
-iv                        =          iz
+iv2                       =          iv1
                           endif
+                          else
+iv1                       =          iz
+iv2                       =          iz
+                          endif
+                          xout       (1 - i(imix)) * iv1 + i(imix) * iv2
+endop
+
+opcode scaleval2, i, iiii
+ip4, ivari, ip, istep     xin
+ix                        tab_i      ip4, 2020 + ivari
+ivari                     tab_i      ix * 3, 500
+imix                      tab_i      ix * 3 + 1 + ivari, 500
+iv1                       scaleval   ip4, ivari * 2, ip, istep, ix
+                          if         (imix > 0) then
+iv2                       scaleval   ip4, ivari * 2 + 1, ip, istep, ix
+                          else
+iv2                       =          iv1
+                          endif
+                          xout       (1 - i(imix)) * iv1 + i(imix) * iv2
+endop
+
+opcode stepval, i, iii
+iz, ivari, ip5            xin
+ilen                      =          ftlen((300 + iz) * 10 + ivari)
+istep                     tab_i      (ip5 % ilen), (300 + iz) * 10 + ivari
+                          xout       istep
+endop
+
+opcode mod2, i, iii
+ip4, ip, istep            xin
+ivari                     tab_i      6, 600
+imix                      tab_i      7 + ivari, 600
+iv1                       scaleval2  ip4, ivari * 2, ip, istep
+                          if         (imix > 0) then
+iv2                       scaleval2  ip4, ivari * 2 + 1, ip, istep
+                          else
+iv2                       =          iv1
+                          endif
+iv                        =          (1 - i(imix)) * iv1 + i(imix) * iv2
+                          finish:
                           xout       iv
 endop
 
-opcode seqval, i, iiiii
-ip4, ip5, ivari, ip, iss     xin
-ix                           tab_i      ip4, 2010 + ivari
-ivari                        tab_i      ix * 3, 500
+opcode seqval, i, iiiiii
+ip4, ip5, ivari, ip, iss, ix xin
 iy                           tab_i      ip * 4 + iss * 2, (300 + ix) * 10 + ivari
 iz                           tab_i      ip * 4 + iss * 2 + 1, (300 + ix) * 10 + ivari
                              if         (iy > 0) then
 ivari                        tab_i      iz * 3, 500
-ilen                         =          ftlen((300 + iz) * 10 + ivari)
-istep                        tab_i      (ip5 % ilen), (300 + iz) * 10 + ivari
-                             else
-istep                        =          iz
-                             endif
-ivari                        tab_i      6, 600
-imix                         tab_i      7 + ivari, 600
-iv1                          scaleval   ip4, ivari * 2, ip, istep
-                             if         (imix > 1) then
-iv2                          scaleval   ip4, ivari * 2 + 1, ip, istep
+imix                         tab_i      iz * 3 + 1 + ivari, 500
+istep                        stepval    iz, ivari * 2, ip5
+iv1                          mod2       ip4, ip, istep
+                             if         (imix > 0) then
+istep                        stepval    iz, ivari * 2 + 1, ip5
+iv2                          mod2       ip4, ip, istep
                              else
 iv2                          =          iv1
                              endif
-imix                         =          (imix - 1.0) / 8.0
-iv                           =          (1 - i(imix)) * iv1 + i(imix) * iv2
-                             finish:
-                             xout       iv
+                             else
+iv1                          mod2       ip4, ip, iz
+iv2                          mod2       ip4, ip, iz
+                             endif
+                             xout       (1 - i(imix)) * iv1 + i(imix) * iv2
 endop
 
-opcode modval, i, iiii
+opcode seqval2, i, iiiii
+ip4, ip5, ivari, ip, iss     xin
+ix                           tab_i      ip4, 2010 + ivari
+ivari                        tab_i      ix * 3, 500
+imix                         tab_i      ix * 3 + 1 + ivari, 500
+iv1                          seqval     ip4, ip5, ivari * 2, ip, iss, ix
+                             if         (imix > 0) then
+iv2                          seqval     ip4, ip5, ivari * 2 + 1, ip, iss, ix
+                             else
+iv2                          =          iv1
+                             endif
+                             xout       (1 - i(imix)) * iv1 + i(imix) * iv2
+endop
+
+opcode mod1, i, iiii
 ip4, ip5, ip, iss  xin
 ivari              tab_i      3, 600
 imix               tab_i      4 + ivari, 600
-iv1                seqval     ip4, ip5, ivari * 2, ip, iss
-                   if         (imix > 1) then
-iv2                seqval     ip4, ip5, ivari * 2 + 1, ip, iss
+iv1                seqval2    ip4, ip5, ivari * 2, ip, iss
+                   if         (imix > 0) then
+iv2                seqval2    ip4, ip5, ivari * 2 + 1, ip, iss
                    else
 iv2                =          iv1
                    endif
-imix               =          (imix - 1.0) / 8.0
 iv                 =          (1 - i(imix)) * iv1 + i(imix) * iv2
                    xout       iv
 endop
 
-opcode modval2, ii, iii
+opcode pval, ii, iii
 ip4, ip5, ip  xin
-istatic       modval     ip4, ip5, ip, 0
-islide        modval     ip4, ip5, ip, 1
+istatic       mod1       ip4, ip5, ip, 0
+islide        mod1       ip4, ip5, ip, 1
               xout       istatic, islide
 endop
 
 instr 2
-iv, iv2          modval2       p4, p5, 0
-ir, ir2          modval2       p4, p5, 1
-is, is2          modval2       p4, p5, 2
-io, io2          modval2       p4, p5, 3
-ip, ip2          modval2       p4, p5, 4
+iv, iv2          pval          p4, p5, 0
+ir, ir2          pval          p4, p5, 1
+is, is2          pval          p4, p5, 2
+io, io2          pval          p4, p5, 3
+ip, ip2          pval          p4, p5, 4
 iison            =             int(p4)
 io               =             (p6 - 0.001) * io
                  cigoto        iv < 0.1, paramchange
@@ -164,14 +214,14 @@ ar           =           ar * aenv * apr
 endin
 
 instr oscreceiver
-ihandle                    OSCinit         $port
-Sparams                    init            ""
-                           nxtmsg:
-kparams                    OSClisten       ihandle, "/macss/params", "s", Sparams
-                           if              (kparams == 0) goto finish
-                           scoreline       Sparams, 1
-                           kgoto           nxtmsg
-                           finish:
+ihandle      OSCinit         $port
+Sparams      init            ""
+             nxtmsg:
+kparams      OSClisten       ihandle, "/macss/params", "s", Sparams
+             if              (kparams == 0) goto finish
+             scoreline       Sparams, 1
+             kgoto           nxtmsg
+             finish:
 endin
 
 instr looper
@@ -245,14 +295,10 @@ asr            =              asr * 64
                outs           asl, asr
 endin
 
-
 </CsInstruments>
 <CsScore>
 f 2000 0 -2 -2 200 1
 f 600 0 -1 -2 0
-i "setvstparam" 0 1 0 0.4
-i "setvstparam" 0 1 1 0.4
-i "setvstparam" 0 1 2 1
 e 10000000
 </CsScore>
 </CsoundSynthesizer>
