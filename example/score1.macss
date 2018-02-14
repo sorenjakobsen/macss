@@ -1,0 +1,28 @@
+0 100 2 8 8 / 50 2 8 8 / 100 2 16 8 / 50 2 16 8
+! The '0' module defines a fundamental rhytmic cycle and '/' here separates four different variations of the cycle. The first
+! variation has a length of 2 'beats', a tempo of 100 BPM, and is playing two 'voices' by 16th 'notes' (dividing the 2 beats in 8).
+! The first voice is produced by the audio sample (in the audio folder) 'a1.wav', the second by 'b1.wav'/'b2.wav'.
+
+1 ab / ba
+! The '1' module defines how each voice is sequenced. 'a' and 'b' reference '*' modules.
+
+a * vcc / v51 / v31
+b * vde / rff / rfg
+! '*' modules define how musical parameters are sequenced. 'v' (highlighted) refers to volume, 'r' to sample playback rate. 'Static'
+! sequences can be defined by an integer, 'dynamic' sequences by referencing '+' modules. For each parameter two values are given -
+! one defining the value when the sample is triggered, the other how the value changes after triggering. Variations of a module
+! 'inherit' properties of the first variation.
+
+c + 5115 6141
+d + 5111 5111
+e + 5111 5555
+f + 5588 5588
+g + 8888 5588
+! '+' modules define sequences of steps in scales of 9 (1-9). The default scale divides the interval [0;1] in 8 equal intervals.
+
+! Parameter reference:
+! 'v' volume, zero to full volume. Volume > 0.1 will retrigger the sample.
+! 'r' playback krate, half to double.
+! 's' sample index, mapped to the range of samples for the given voice (b1.wav, b2.wav, b3.wav, ... - optionally up to b4.wav).
+! 'o' timing offset, from zero offset to an offset the length of one division of the cycle.
+! 'p' panning, from left to right speaker.
