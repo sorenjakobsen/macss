@@ -20,9 +20,10 @@ f + 5588 5588
 g + 8888 5588
 ! '+' modules define sequences of steps in scales of 9 (1-9). The default scale divides the interval [0;1] in 8 equal intervals.
 
-! Parameter reference:
-! 'v' volume, zero to full volume. Volume > 0.1 will retrigger the sample.
+! How values in the interval [0;1] are interpreted for the different types of parameters:
+!
+! 'v' volume, zero to full volume. values > 0.1 will retrigger the sample.
 ! 'r' playback krate, half to double.
-! 's' sample index, mapped to the range of samples for the given voice (b1.wav, b2.wav, b3.wav, ... - optionally up to b4.wav).
+! 's' sample index, mapped to the range of samples for the given voice (x1.wav, x2.wav, x3.wav, ... - optionally up to x9.wav).
 ! 'o' timing offset, from zero offset to an offset the length of one division of the cycle.
 ! 'p' panning, from left to right speaker.

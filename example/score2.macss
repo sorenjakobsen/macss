@@ -19,4 +19,4 @@ i % v0
 
 j - . 875 75 625 5 375 25 125 0
 ! '-' modules define scales and here is defined a 'mirrored' version of the default scale - '.' defines 1, '875' defines '0.875',
-! '75' defines '0.75', etc. - numbers whose interpretation depend on which parameter they are used for.
+! '75' defines '0.75', etc.

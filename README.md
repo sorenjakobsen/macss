@@ -12,7 +12,7 @@ Macs/s shares a vision with [TidalCycles](https://tidalcycles.org/) and [ixi lan
 
 * is not designed for automating (by algorithms) the creation of musical events, but more for simply notating such events 'manually'.
 * is [declarative](https://en.wikipedia.org/wiki/Declarative_programming) but not [functional](https://en.wikipedia.org/wiki/Functional_programming).
-* is [compiled](https://en.wikipedia.org/wiki/Compiler) and not [interpreted](https://en.wikipedia.org/wiki/Interpreter_(computing).
+* is [compiled](https://en.wikipedia.org/wiki/Compiler) and not [interpreted](https://en.wikipedia.org/wiki/Interpreter_computing).
 * is less flexible and enforces certain limitations.
 * provides a powerful - concise and expressive - way of describing and composing musical events 'modularly'.
 * supports a mode of interaction which is not by inputting text statements, but where musical changes may be activated by pressing only one button.
