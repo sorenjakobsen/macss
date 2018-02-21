@@ -1,9 +1,9 @@
-0 100 2 8 8 / 50 2 8 8 / 100 2 16 8 / 50 2 16 8
+1 100 2 8 8 / 50 2 8 8 / 100 2 16 8 / 50 2 16 8
 ! The '0' module defines a fundamental rhytmic cycle and '/' here separates four different variations of the cycle. The first
 ! variation has a length of 2 'beats', a tempo of 100 BPM, and is playing two 'voices' by 16th 'notes' (dividing the 2 beats in 8).
 ! The first voice is produced by the audio sample (in the audio folder) 'a1.wav', the second by 'b1.wav'/'b2.wav'.
 
-1 ab / ba
+2 ab / ba
 ! The '1' module defines how each voice is sequenced. 'a' and 'b' reference '*' modules.
 
 a * vcc / v51 / v31

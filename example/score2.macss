@@ -1,6 +1,6 @@
-0 120 4 16 16 / 120 2 8 8 / 120 1 4 4
-1 ab
-2 hh / hi
+1 120 4 16 16 / 120 2 8 8 / 120 1 4 4
+2 ab
+3 hh / hi
 ! The '2' module defines scales for each voice.
 
 a * vc1 oee sff rgg

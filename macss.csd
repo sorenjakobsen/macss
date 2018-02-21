@@ -64,7 +64,7 @@ endop
 
 opcode scaleval2, i, iiii
 ip4, ivari, ip, istep     xin
-ix                        tab_i      ip4, 2020 + ivari
+ix                        tab_i      ip4, 2030 + ivari
 ivari                     tab_i      ix * 3, 500
 imix                      tab_i      ix * 3 + 1 + ivari, 500
 iv1                       scaleval   ip4, ivari * 2, ip, istep, ix
@@ -83,10 +83,10 @@ istep                     tab_i      (ip5 % ilen), (300 + iz) * 10 + ivari
                           xout       istep
 endop
 
-opcode mod2, i, iii
+opcode mod3, i, iii
 ip4, ip, istep            xin
-ivari                     tab_i      6, 600
-imix                      tab_i      7 + ivari, 600
+ivari                     tab_i      9, 600
+imix                      tab_i      10 + ivari, 600
 iv1                       scaleval2  ip4, ivari * 2, ip, istep
                           if         (imix > 0) then
 iv2                       scaleval2  ip4, ivari * 2 + 1, ip, istep
@@ -106,23 +106,23 @@ iz                           tab_i      ip * 4 + iss * 2 + 1, (300 + ix) * 10 + 
 ivari                        tab_i      iz * 3, 500
 imix                         tab_i      iz * 3 + 1 + ivari, 500
 istep                        stepval    iz, ivari * 2, ip5
-iv1                          mod2       ip4, ip, istep
+iv1                          mod3       ip4, ip, istep
                              if         (imix > 0) then
 istep                        stepval    iz, ivari * 2 + 1, ip5
-iv2                          mod2       ip4, ip, istep
+iv2                          mod3       ip4, ip, istep
                              else
 iv2                          =          iv1
                              endif
                              else
-iv1                          mod2       ip4, ip, iz
-iv2                          mod2       ip4, ip, iz
+iv1                          mod3       ip4, ip, iz
+iv2                          mod3       ip4, ip, iz
                              endif
                              xout       (1 - i(imix)) * iv1 + i(imix) * iv2
 endop
 
 opcode seqval2, i, iiiii
 ip4, ip5, ivari, ip, iss     xin
-ix                           tab_i      ip4, 2010 + ivari
+ix                           tab_i      ip4, 2020 + ivari
 ivari                        tab_i      ix * 3, 500
 imix                         tab_i      ix * 3 + 1 + ivari, 500
 iv1                          seqval     ip4, ip5, ivari * 2, ip, iss, ix
@@ -134,10 +134,10 @@ iv2                          =          iv1
                              xout       (1 - i(imix)) * iv1 + i(imix) * iv2
 endop
 
-opcode mod1, i, iiii
+opcode mod2, i, iiii
 ip4, ip5, ip, iss  xin
-ivari              tab_i      3, 600
-imix               tab_i      4 + ivari, 600
+ivari              tab_i      6, 600
+imix               tab_i      7 + ivari, 600
 iv1                seqval2    ip4, ip5, ivari * 2, ip, iss
                    if         (imix > 0) then
 iv2                seqval2    ip4, ip5, ivari * 2 + 1, ip, iss
@@ -150,8 +150,8 @@ endop
 
 opcode pval, ii, iii
 ip4, ip5, ip  xin
-istatic       mod1       ip4, ip5, ip, 0
-islide        mod1       ip4, ip5, ip, 1
+istatic       mod2       ip4, ip5, ip, 0
+islide        mod2       ip4, ip5, ip, 1
               xout       istatic, islide
 endop
 
@@ -226,14 +226,14 @@ endin
 
 instr looper
              loop:
-ivari        tab_i         0, 600
-imix         tab_i         1 + ivari, 600
-itable       =             2000 + ivari * 2
+ivari        tab_i         3, 600
+imix         tab_i         4 + ivari, 600
+itable       =             2010 + ivari * 2
 ivoices      =             ftlen(itable) - 2
 itempo       tab_i         0, itable
 ibeats       tab_i         1, itable
              if            (imix > 0) then
-itable2      =             2000 + ivari * 2 + 1
+itable2      =             2010 + ivari * 2 + 1
 itempo2      tab_i         0, itable2
 ibeats2      tab_i         1, itable2
 itempo       =             (1 - i(imix)) * itempo + i(imix) * itempo2
@@ -310,8 +310,8 @@ endin
 
 </CsInstruments>
 <CsScore>
-f 2000 0 -2 -2 200 1
-f 600 0 -2 -2 0 0
+f 2010 0 -2 -2 200 1
+f 600 0 -6 -2 0 0 0 0 0 0
 e 10000000
 </CsScore>
 </CsoundSynthesizer>
