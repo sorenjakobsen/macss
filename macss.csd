@@ -42,13 +42,19 @@ connect "reverb", "outl", "master", "inl"
 connect "reverb", "outr", "master", "inr"
 
 
+opcode varimix, ii, i
+imod          xin
+ivari         tab_i         imod * 3, 500
+imix          tab_i         imod * 3 + 1 + ivari, 500
+              xout          ivari, imix
+endop
+
 opcode scaleval, i, iiiii
 ip4, ivari, ip, istep, ix xin
 iy                        tab_i      ip * 2, (300 + ix) * 10 + ivari
 iz                        tab_i      ip * 2 + 1, (300 + ix) * 10 + ivari
                           if         (iy > 0) then
-ivari                     tab_i      iz * 3, 500
-imix                      tab_i      iz * 3 + 1 + ivari, 500
+ivari, imix               varimix    iz
 iv1                       tab_i      istep - 1, (300 + iz) * 10 + ivari * 2
                           if         (imix > 0) then
 iv2                       tab_i      istep - 1, (300 + iz) * 10 + ivari * 2 + 1
@@ -64,9 +70,9 @@ endop
 
 opcode scaleval2, i, iiii
 ip4, ivari, ip, istep     xin
-ix                        tab_i      ip4, 2030 + ivari
-ivari                     tab_i      ix * 3, 500
-imix                      tab_i      ix * 3 + 1 + ivari, 500
+iscales                   tab_i      2, 400
+ix                        tab_i      ip4, (300 + iscales) * 10 + ivari
+ivari, imix               varimix    ix
 iv1                       scaleval   ip4, ivari * 2, ip, istep, ix
                           if         (imix > 0) then
 iv2                       scaleval   ip4, ivari * 2 + 1, ip, istep, ix
@@ -83,10 +89,10 @@ istep                     tab_i      (ip5 % ilen), (300 + iz) * 10 + ivari
                           xout       istep
 endop
 
-opcode mod3, i, iii
+opcode scales, i, iii
 ip4, ip, istep            xin
-ivari                     tab_i      9, 600
-imix                      tab_i      10 + ivari, 600
+ianim                     tab_i      2, 400
+ivari, imix               varimix    ianim
 iv1                       scaleval2  ip4, ivari * 2, ip, istep
                           if         (imix > 0) then
 iv2                       scaleval2  ip4, ivari * 2 + 1, ip, istep
@@ -103,28 +109,27 @@ ip4, ip5, ivari, ip, iss, ix xin
 iy                           tab_i      ip * 4 + iss * 2, (300 + ix) * 10 + ivari
 iz                           tab_i      ip * 4 + iss * 2 + 1, (300 + ix) * 10 + ivari
                              if         (iy > 0) then
-ivari                        tab_i      iz * 3, 500
-imix                         tab_i      iz * 3 + 1 + ivari, 500
+ivari, imix                  varimix    iz
 istep                        stepval    iz, ivari * 2, ip5
-iv1                          mod3       ip4, ip, istep
+iv1                          scales     ip4, ip, istep
                              if         (imix > 0) then
 istep                        stepval    iz, ivari * 2 + 1, ip5
-iv2                          mod3       ip4, ip, istep
+iv2                          scales     ip4, ip, istep
                              else
 iv2                          =          iv1
                              endif
                              else
-iv1                          mod3       ip4, ip, iz
-iv2                          mod3       ip4, ip, iz
+iv1                          scales     ip4, ip, iz
+iv2                          scales     ip4, ip, iz
                              endif
                              xout       (1 - i(imix)) * iv1 + i(imix) * iv2
 endop
 
 opcode seqval2, i, iiiii
 ip4, ip5, ivari, ip, iss     xin
-ix                           tab_i      ip4, 2020 + ivari
-ivari                        tab_i      ix * 3, 500
-imix                         tab_i      ix * 3 + 1 + ivari, 500
+ianimation                   tab_i      1, 400
+ix                           tab_i      ip4, (300 + ianimation) * 10 + ivari
+ivari, imix                  varimix    ix
 iv1                          seqval     ip4, ip5, ivari * 2, ip, iss, ix
                              if         (imix > 0) then
 iv2                          seqval     ip4, ip5, ivari * 2 + 1, ip, iss, ix
@@ -134,10 +139,10 @@ iv2                          =          iv1
                              xout       (1 - i(imix)) * iv1 + i(imix) * iv2
 endop
 
-opcode mod2, i, iiii
+opcode animation, i, iiii
 ip4, ip5, ip, iss  xin
-ivari              tab_i      6, 600
-imix               tab_i      7 + ivari, 600
+iscale             tab_i      1, 400
+ivari, imix        varimix    iscale
 iv1                seqval2    ip4, ip5, ivari * 2, ip, iss
                    if         (imix > 0) then
 iv2                seqval2    ip4, ip5, ivari * 2 + 1, ip, iss
@@ -150,8 +155,8 @@ endop
 
 opcode pval, ii, iii
 ip4, ip5, ip  xin
-istatic       mod2       ip4, ip5, ip, 0
-islide        mod2       ip4, ip5, ip, 1
+istatic       animation  ip4, ip5, ip, 0
+islide        animation  ip4, ip5, ip, 1
               xout       istatic, islide
 endop
 
@@ -226,14 +231,14 @@ endin
 
 instr looper
              loop:
-ivari        tab_i         3, 600
-imix         tab_i         4 + ivari, 600
-itable       =             2010 + ivari * 2
+imetric      tab_i         0, 400
+ivari, imix  varimix       imetric
+itable       =             (300 + imetric) * 10 + ivari * 2
 ivoices      =             ftlen(itable) - 2
 itempo       tab_i         0, itable
 ibeats       tab_i         1, itable
              if            (imix > 0) then
-itable2      =             2010 + ivari * 2 + 1
+itable2      =             (300 + imetric) * 10 + ivari * 2 + 1
 itempo2      tab_i         0, itable2
 ibeats2      tab_i         1, itable2
 itempo       =             (1 - i(imix)) * itempo + i(imix) * itempo2
@@ -243,6 +248,7 @@ gibeats      =             ibeats
 gitimeout    =             60.0 / itempo
 ibeat        =             gibeat % gibeats
 gibeat       =             gibeat + 1
+
              timout        0, gitimeout, play
              reinit        loop
              play:
@@ -311,7 +317,9 @@ endin
 </CsInstruments>
 <CsScore>
 f 2010 0 -2 -2 200 1
-f 600 0 -6 -2 0 0 0 0 0 0
+f 400 0 -1 -2 0
+f 500 0 -3 -2 0 0 0
+f 3000 0 -2 -2 120 1
 e 10000000
 </CsScore>
 </CsoundSynthesizer>
