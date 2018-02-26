@@ -244,6 +244,9 @@ endin
 
 instr looper
              loop:
+iplaystate   tab_i         0, 600
+ivoices      =             0
+             cggoto        iplaystate == 1, timout
 imetric      tab_i         0, 400
 ivari, imix  varimix       imetric
 itable       =             (300 + imetric) * 10 + ivari * 2
@@ -259,14 +262,18 @@ ibeats       =             (1 - i(imix)) * ibeats + i(imix) * ibeats2
              endif
 gibeats      =             ibeats
 gitimeout    =             60.0 / itempo
+             if            (iplaystate == 2) then
+gibeat       =             0
+             endif
 ibeat        =             gibeat % gibeats
 gibeat       =             gibeat + 1
+             timout:
              timout        0, gitimeout, play
              reinit        loop
              play:
 ij           =             0
              jloop:
-             if            (ivoices > 0) then
+             if            (ivoices > 0 && iplaystate > 1) then
 idivs        tab_i         2 + ij, itable
              if            (imix > 0) then
 idivs2       tab_i         2 + ij, itable2
@@ -280,9 +287,12 @@ ik           =             0
              endif
 ik           =             ik + 1
              cigoto        ik < idivs, kloop
-             else
-             scoreline_i   "i -3.100 0 -1\ni -3.101 0 -1\ni -3.102 0 -1\ni -3.103 0 -1\n"
-             scoreline_i   "i -3.104 0 -1\ni -3.105 0 -1\ni -3.106 0 -1\ni -3.107 0 -1\n"
+             tabw_i        3, 0, 600
+             endif
+             if            (iplaystate == 0) then
+             tabw_i        1, 0, 600
+             scoreline_i   "i -3.100 0 -1\ni -3.101 0 -1\ni -3.102 0 -1\ni -3.103 0 -1\ni -3.104 0 -1\n"
+             scoreline_i   "i -3.105 0 -1\ni -3.106 0 -1\ni -3.107 0 -1\ni -3.108 0 -1\ni -3.109 0 -1\n"
              endif
 ij           =             ij + 1
              cigoto        ij < ivoices, jloop
@@ -328,9 +338,7 @@ endin
 
 </CsInstruments>
 <CsScore>
-f 400 0 -1 -2 0
-f 500 0 -3 -2 0 0 0
-f 3000 0 -2 -2 120 1
+f 600 0 -1 -2 1 ;0: stop, 1: stopped, 2:start, 3: started
 e 10000000
 </CsScore>
 </CsoundSynthesizer>
