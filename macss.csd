@@ -121,7 +121,6 @@ iv2                          =          iv1
                              endif
                              else
                              if         (iss == 1 && iz < 0) then
-                                 ;prints "%f \n", gitrigval[ip4][ip]
 iv1                          =          gitrigval[ip4][ip]
 iv2                          =          gitrigval[ip4][ip]
                              else
@@ -172,8 +171,10 @@ islide        animation  ip4, ip5, ip, 1, itrig
 endop
 
 instr 2
+iloop            =             p7
+ips              =             p8
 iv, iv2          pval          p4, p5, 0, 0
-itrig            =             iv >= 0.1 ? 1 : 0
+itrig            =             (iloop == 0 && iv >= 0.1) || (iloop == 1 && ips == 2) ? 1 : 0
 iv, iv2          pval          p4, p5, 0, itrig
 ir, ir2          pval          p4, p5, 1, itrig
 is, is2          pval          p4, p5, 2, itrig
@@ -189,10 +190,10 @@ is               =             (100 + p4) * 10 + floor (is * 0.999 * ilen)
                  goto          finish
                  trigger:
                  event_i       "i", -(p1+1), io, -1
-                 event_i       "i", p1+1, io, -1, is, ir, ir2, iv, iv2, ip, ip2
+                 event_i       "i", p1+1, io, -1, is, ir, ir2, iv, iv2, ip, ip2, iloop
                  goto          finish
                  paramchange:
-                 event_i       "i", p1+1, io, -1, -1, -1, ir2, -1, iv2, -1, ip2
+                 event_i       "i", p1+1, io, -1, -1, -1, ir2, -1, iv2, -1, ip2, iloop
                  finish:
 endin
 
@@ -204,6 +205,7 @@ aenv         linseg      1, gireldur, 0
              endif
              tigoto      tie
 aenv         init        1
+iloop        =           p11
 is           init        p4
 krate        init        p5
 kv           init        p7
@@ -219,7 +221,7 @@ apl          interp      kpl, 0, 1
 apr          interp      kpr, 0, 1
              tigoto      output
              if          (is != -1) then
-al, ar       loscil3     av, pow(2, (krate - 0.5) * 2), is, 1
+al, ar       loscil3     av, pow(2, (krate - 0.5) * 2), is, 1, iloop
              endif
 al           =           al * aenv * apl
 ar           =           ar * aenv * apr
@@ -250,7 +252,7 @@ ivoices      =             0
 imetric      tab_i         0, 400
 ivari, imix  varimix       imetric
 itable       =             (300 + imetric) * 10 + ivari * 2
-ivoices      =             ftlen(itable) - 2
+ivoices      =             (ftlen(itable) - 2) / 2
 itempo       tab_i         0, itable
 ibeats       tab_i         1, itable
              if            (imix > 0) then
@@ -274,28 +276,33 @@ gibeat       =             gibeat + 1
 ij           =             0
              jloop:
              if            (ivoices > 0 && iplaystate > 1) then
-idivs        tab_i         2 + ij, itable
+idivs        tab_i         2 + ij * 2, itable
+iloop        tab_i         2 + ij * 2 + 1, itable
              if            (imix > 0) then
-idivs2       tab_i         2 + ij, itable2
+idivs2       tab_i         2 + ij * 2, itable2
+iloop2       tab_i         2 + ij * 2 + 1, itable2
 idivs        =             (1 - i(imix)) * idivs + i(imix) * idivs2
+iloop        =             iloop == 1 ? 1 : iloop2
              endif
 idur         =             gibeats / idivs
 ik           =             0
+ips          =             iplaystate
              kloop:
              if            (((ik * idur) >= ibeat) && ((ik * idur) < (ibeat + 1))) then
-             event_i       "i", 2 + (100 + ij) * 0.001, (ik * idur - ibeat) * gitimeout, -1, ij, ik, idur * gitimeout
+             event_i       "i", 2 + (100 + ij) * 0.001, (ik * idur - ibeat) * gitimeout, -1, ij, ik, idur * gitimeout, iloop, ips
              endif
 ik           =             ik + 1
+ips          =             3
              cigoto        ik < idivs, kloop
              tabw_i        3, 0, 600
              endif
+ij           =             ij + 1
+             cigoto        ij < ivoices, jloop
              if            (iplaystate == 0) then
              tabw_i        1, 0, 600
              scoreline_i   "i -3.100 0 -1\ni -3.101 0 -1\ni -3.102 0 -1\ni -3.103 0 -1\ni -3.104 0 -1\n"
              scoreline_i   "i -3.105 0 -1\ni -3.106 0 -1\ni -3.107 0 -1\ni -3.108 0 -1\ni -3.109 0 -1\n"
              endif
-ij           =             ij + 1
-             cigoto        ij < ivoices, jloop
              finish:
 endin
 
