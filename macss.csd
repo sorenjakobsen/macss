@@ -24,6 +24,7 @@ gili         init      0.00003 * ksmps
 gihi         init      0.00003 * ksmps
 gibeat       init      0
 gibeats      init      0
+gitrigval[]  init      10, 5
 
 alwayson "looper"
 alwayson "oscreceiver"
@@ -47,6 +48,13 @@ imod          xin
 ivari         tab_i         imod * 3, 500
 imix          tab_i         imod * 3 + 1 + ivari, 500
               xout          ivari, imix
+endop
+
+opcode stepval, i, iii
+iz, ivari, ip5            xin
+ilen                      =          ftlen((300 + iz) * 10 + ivari)
+istep                     tab_i      (ip5 % ilen), (300 + iz) * 10 + ivari
+                          xout       istep
 endop
 
 opcode scaleval, i, iiiii
@@ -82,17 +90,10 @@ iv2                       =          iv1
                           xout       (1 - i(imix)) * iv1 + i(imix) * iv2
 endop
 
-opcode stepval, i, iii
-iz, ivari, ip5            xin
-ilen                      =          ftlen((300 + iz) * 10 + ivari)
-istep                     tab_i      (ip5 % ilen), (300 + iz) * 10 + ivari
-                          xout       istep
-endop
-
 opcode scales, i, iii
 ip4, ip, istep            xin
-ianim                     tab_i      2, 400
-ivari, imix               varimix    ianim
+iscales                   tab_i      2, 400
+ivari, imix               varimix    iscales
 iv1                       scaleval2  ip4, ivari * 2, ip, istep
                           if         (imix > 0) then
 iv2                       scaleval2  ip4, ivari * 2 + 1, ip, istep
@@ -104,8 +105,8 @@ iv                        =          (1 - i(imix)) * iv1 + i(imix) * iv2
                           xout       iv
 endop
 
-opcode seqval, i, iiiiii
-ip4, ip5, ivari, ip, iss, ix xin
+opcode animval, i, iiiiiii
+ip4, ip5, ivari, ip, iss, ix, itrig xin
 iy                           tab_i      ip * 4 + iss * 2, (300 + ix) * 10 + ivari
 iz                           tab_i      ip * 4 + iss * 2 + 1, (300 + ix) * 10 + ivari
                              if         (iy > 0) then
@@ -119,33 +120,43 @@ iv2                          scales     ip4, ip, istep
 iv2                          =          iv1
                              endif
                              else
+                             if         (iss == 1 && iz < 0) then
+                                 ;prints "%f \n", gitrigval[ip4][ip]
+iv1                          =          gitrigval[ip4][ip]
+iv2                          =          gitrigval[ip4][ip]
+                             else
 iv1                          scales     ip4, ip, iz
 iv2                          scales     ip4, ip, iz
                              endif
-                             xout       (1 - i(imix)) * iv1 + i(imix) * iv2
+                             endif
+iv                           =          (1 - i(imix)) * iv1 + i(imix) * iv2
+                             if         (iss == 0 && itrig == 1) then
+gitrigval[ip4][ip]           =          iv
+                             endif
+                             xout       iv
 endop
 
-opcode seqval2, i, iiiii
-ip4, ip5, ivari, ip, iss     xin
+opcode animval2, i, iiiiii
+ip4, ip5, ivari, ip, iss, itrig     xin
 ianimation                   tab_i      1, 400
 ix                           tab_i      ip4, (300 + ianimation) * 10 + ivari
 ivari, imix                  varimix    ix
-iv1                          seqval     ip4, ip5, ivari * 2, ip, iss, ix
+iv1                          animval    ip4, ip5, ivari * 2, ip, iss, ix, itrig
                              if         (imix > 0) then
-iv2                          seqval     ip4, ip5, ivari * 2 + 1, ip, iss, ix
+iv2                          animval    ip4, ip5, ivari * 2 + 1, ip, iss, ix, itrig
                              else
 iv2                          =          iv1
                              endif
                              xout       (1 - i(imix)) * iv1 + i(imix) * iv2
 endop
 
-opcode animation, i, iiii
-ip4, ip5, ip, iss  xin
-iscale             tab_i      1, 400
-ivari, imix        varimix    iscale
-iv1                seqval2    ip4, ip5, ivari * 2, ip, iss
+opcode animation, i, iiiii
+ip4, ip5, ip, iss, itrig  xin
+ianimation         tab_i      1, 400
+ivari, imix        varimix    ianimation
+iv1                animval2   ip4, ip5, ivari * 2, ip, iss, itrig
                    if         (imix > 0) then
-iv2                seqval2    ip4, ip5, ivari * 2 + 1, ip, iss
+iv2                animval2   ip4, ip5, ivari * 2 + 1, ip, iss, itrig
                    else
 iv2                =          iv1
                    endif
@@ -153,22 +164,24 @@ iv                 =          (1 - i(imix)) * iv1 + i(imix) * iv2
                    xout       iv
 endop
 
-opcode pval, ii, iii
-ip4, ip5, ip  xin
-istatic       animation  ip4, ip5, ip, 0
-islide        animation  ip4, ip5, ip, 1
+opcode pval, ii, iiii
+ip4, ip5, ip, itrig  xin
+istatic       animation  ip4, ip5, ip, 0, itrig
+islide        animation  ip4, ip5, ip, 1, itrig
               xout       istatic, islide
 endop
 
 instr 2
-iv, iv2          pval          p4, p5, 0
-ir, ir2          pval          p4, p5, 1
-is, is2          pval          p4, p5, 2
-io, io2          pval          p4, p5, 3
-ip, ip2          pval          p4, p5, 4
+iv, iv2          pval          p4, p5, 0, 0
+itrig            =             iv >= 0.1 ? 1 : 0
+iv, iv2          pval          p4, p5, 0, itrig
+ir, ir2          pval          p4, p5, 1, itrig
+is, is2          pval          p4, p5, 2, itrig
+io, io2          pval          p4, p5, 3, itrig
+ip, ip2          pval          p4, p5, 4, itrig
 iison            =             int(p4)
 io               =             (p6 - 0.001) * io
-                 cigoto        iv < 0.1, paramchange
+                 cigoto        itrig == 0, paramchange
 ilen             tab_i         0, 100 + p4
                  cigoto        ilen == 0, finish
 is               =             (100 + p4) * 10 + floor (is * 0.999 * ilen)
@@ -248,7 +261,6 @@ gibeats      =             ibeats
 gitimeout    =             60.0 / itempo
 ibeat        =             gibeat % gibeats
 gibeat       =             gibeat + 1
-
              timout        0, gitimeout, play
              reinit        loop
              play:
@@ -316,7 +328,6 @@ endin
 
 </CsInstruments>
 <CsScore>
-f 2010 0 -2 -2 200 1
 f 400 0 -1 -2 0
 f 500 0 -3 -2 0 0 0
 f 3000 0 -2 -2 120 1
